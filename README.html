@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugin Documentation</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            border-bottom: 2px solid #2196f3;
+            padding-bottom: 10px;
+            color: #1976d2;
+        }
+        h2 {
+            margin-top: 30px;
+            color: #1976d2;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        h3 {
+            margin-top: 20px;
+            color: #424242;
+        }
+        h4 {
+            color: #616161;
+        }
+        a {
+            color: #2196f3;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        blockquote {
+            border-left: 4px solid #2196f3;
+            margin: 0;
+            padding-left: 15px;
+            color: #666;
+            background: #f5f9fc;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #2196f3;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        strong {
+            font-weight: 600;
+            color: #1976d2;
+        }
+        .mermaid {
+            text-align: center;
+            margin: 20px 0;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+<h1 id="lyso-ip-ingestion">Lyso-IP Ingestion</h1>
+<h2 id="installation">Installation</h2>
+<p><a href="cauldron://install?repo=https%3A%2F%2Fgithub.com%2Fnoatgnu%2Flysoip-ingestion-plugin">⬇️ <strong>Click here to install in Cauldron</strong></a></p>
+<blockquote>
+<p><strong>Repository</strong>: <code>https://github.com/noatgnu/lysoip-ingestion-plugin</code></p>
+</blockquote>
+<p><strong>Manual installation:</strong></p>
+<ol>
+<li>Open Cauldron</li>
+<li>Go to <strong>Plugins</strong> → <strong>Install from Repository</strong></li>
+<li>Paste: <code>https://github.com/noatgnu/lysoip-ingestion-plugin</code></li>
+<li>Click <strong>Install</strong></li>
+</ol>
+<p><strong>ID</strong>: <code>lysoip-ingestion</code><br>
+<strong>Version</strong>: 1.0.0<br>
+<strong>Category</strong>: lysoip-qc<br>
+<strong>Author</strong>: CauldronGO Team</p>
+<h2 id="description">Description</h2>
+<p>Converts a Spectronaut, FragPipe, DIA-NN, or generic tidy search-engine export into the tidy long-format files the lysoip-* plugin suite consumes</p>
+<h2 id="workflow-diagram">Workflow Diagram</h2>
+<pre class="mermaid">flowchart TD
+    Start([Start]) --&gt; step1
+    step1[&quot;Reading sample sheet&quot;]
+    step1 --&gt; step2
+    step2[&quot;Parsing protein-level abundance&quot;]
+    step2 --&gt; step3
+    step3{&quot;Parsing peptide-level abundance&quot;}
+    step3 --&gt; step4
+    step4[&quot;Ingestion complete&quot;]
+    step4 --&gt; End([End])
+</pre>
+<h2 id="runtime">Runtime</h2>
+<ul>
+<li>
+<p><strong>Environments</strong>: <code>python</code></p>
+</li>
+<li>
+<p><strong>Entrypoint</strong>: <code>lysoip_ingestion.py</code></p>
+</li>
+</ul>
+<h2 id="inputs">Inputs</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Label</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Visibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>format</code></td>
+<td>Search Engine Format</td>
+<td>select (Spectronaut / DIA-NN long-format report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, Generic tidy protein x sample matrix)</td>
+<td>Yes</td>
+<td>generic_tidy</td>
+<td>Always visible</td>
+</tr>
+<tr>
+<td><code>raw_file</code></td>
+<td>Protein-Level Raw File</td>
+<td>file</td>
+<td>Yes</td>
+<td>-</td>
+<td>Always visible</td>
+</tr>
+<tr>
+<td><code>peptide_file</code></td>
+<td>Peptide-Level Raw File</td>
+<td>file</td>
+<td>No</td>
+<td>-</td>
+<td>Always visible</td>
+</tr>
+<tr>
+<td><code>sample_sheet_file</code></td>
+<td>Sample Sheet</td>
+<td>file</td>
+<td>Yes</td>
+<td>-</td>
+<td>Always visible</td>
+</tr>
+</tbody>
+</table>
+<h3 id="input-details">Input Details</h3>
+<h4 id="search-engine-format-format">Search Engine Format (<code>format</code>)</h4>
+<p>Which search engine produced the raw file</p>
+<ul>
+<li><strong>Options</strong>: <code>spectronaut</code> (Spectronaut / DIA-NN long-format report), <code>fragpipe</code> (FragPipe combined_protein.tsv), <code>diann</code> (DIA-NN report.pg_matrix.tsv), <code>generic_tidy</code> (Generic tidy protein x sample matrix)</li>
+</ul>
+<h4 id="protein-level-raw-file-raw-file">Protein-Level Raw File (<code>raw_file</code>)</h4>
+<p>Spectronaut/DIA-NN long report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, or a generic tidy protein x sample matrix, matching the selected format</p>
+<h4 id="peptide-level-raw-file-peptide-file">Peptide-Level Raw File (<code>peptide_file</code>)</h4>
+<p>Optional companion peptide-level file (report.pr_matrix.tsv for DIA-NN, combined_peptide.tsv for FragPipe, etc.). Enables downstream msqrob2-based differential expression instead of limma.</p>
+<h4 id="sample-sheet-sample-sheet-file">Sample Sheet (<code>sample_sheet_file</code>)</h4>
+<p>Maps each raw file's sample identifiers to an ip/wcl group and a replicate index</p>
+<ul>
+<li><strong>Table Editor</strong>: Enabled with 3 columns
+<ul>
+<li><strong>Columns</strong>:
+<ul>
+<li><code>Sample</code>: Sample (required)
+<ul>
+<li>Sample identifier matching a column/value in the raw file (e.g. R.FileName, or a FragPipe/DIA-NN column name)</li>
+</ul>
+</li>
+<li><code>Group</code>: Group (required)
+<ul>
+<li>Must be exactly 'ip' or 'wcl'</li>
+</ul>
+</li>
+<li><code>ReplicateIndex</code>: Replicate Index (required)
+<ul>
+<li>Biological replicate number within this sample's group</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="outputs">Outputs</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>File</th>
+<th>Type</th>
+<th>Format</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>samples</code></td>
+<td><code>samples.tsv</code></td>
+<td>data</td>
+<td>tsv</td>
+<td>Resolved sample -&gt; group/replicate mapping</td>
+</tr>
+<tr>
+<td><code>abundance_long</code></td>
+<td><code>abundance_long.tsv</code></td>
+<td>data</td>
+<td>tsv</td>
+<td>Protein-level abundance in long format (sample, protein, gene, value) — the shared input every other lysoip-* plugin expects</td>
+</tr>
+<tr>
+<td><code>peptide_abundance_long</code></td>
+<td><code>peptide_abundance_long.tsv</code></td>
+<td>data</td>
+<td>tsv</td>
+<td>Peptide-level abundance in long format (sample, peptide, protein, gene, value). Present only when a peptide-level raw file was given.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li><strong>Python Version</strong>: &gt;=3.11</li>
+</ul>
+<h3 id="package-dependencies-inline">Package Dependencies (Inline)</h3>
+<p>Packages are defined inline in the plugin configuration:</p>
+<ul>
+<li><code>pandas&gt;=2.0.0</code></li>
+</ul>
+<blockquote>
+<p><strong>Note</strong>: When you create a custom environment for this plugin, these dependencies will be automatically installed.</p>
+</blockquote>
+<h2 id="example-data">Example Data</h2>
+<p>This plugin includes example data for testing:</p>
+<pre><code class="language-yaml">  format: generic_tidy
+  raw_file: examples/generic_tidy_data.csv
+  peptide_file: examples/generic_tidy_peptides.csv
+  sample_sheet_file: examples/sample_sheet.csv
+</code></pre>
+<p>Load example data by clicking the <strong>Load Example</strong> button in the UI.</p>
+<h2 id="usage">Usage</h2>
+<h3 id="via-ui">Via UI</h3>
+<ol>
+<li>Navigate to <strong>lysoip-qc</strong> → <strong>Lyso-IP Ingestion</strong></li>
+<li>Fill in the required inputs</li>
+<li>Click <strong>Run Analysis</strong></li>
+</ol>
+<h3 id="via-plugin-system">Via Plugin System</h3>
+<pre><code class="language-typescript">const jobId = await pluginService.executePlugin('lysoip-ingestion', {
+  // Add parameters here
+});
+</code></pre>
+
+</body>
+</html>

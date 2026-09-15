@@ -1,0 +1,3 @@
+peptide,protein,gene,IP_1,IP_2,Ctrl_1,Ctrl_2
+PEPTIDEA,P1,GENE1,600,650,80,90
+PEPTIDEB,P1,GENE1,400,450,20,30

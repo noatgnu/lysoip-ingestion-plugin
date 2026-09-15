@@ -1,0 +1,111 @@
+plugin:
+  id: "lysoip-ingestion"
+  name: "Lyso-IP Ingestion"
+  description: "Converts a Spectronaut, FragPipe, DIA-NN, or generic tidy search-engine export into the tidy long-format files the lysoip-* plugin suite consumes"
+  version: "1.0.0"
+  author: "CauldronGO Team"
+  category: "lysoip-qc"
+  icon: "input"
+  repository: "https://github.com/noatgnu/lysoip-ingestion-plugin"
+
+runtime:
+  environments: ["python"]
+  entrypoint: "lysoip_ingestion.py"
+
+diagram:
+  enabled: true
+
+inputs:
+  - name: "format"
+    label: "Search Engine Format"
+    type: "select"
+    required: true
+    default: "generic_tidy"
+    options:
+      - value: "spectronaut"
+        label: "Spectronaut / DIA-NN long-format report"
+      - value: "fragpipe"
+        label: "FragPipe combined_protein.tsv"
+      - value: "diann"
+        label: "DIA-NN report.pg_matrix.tsv"
+      - value: "generic_tidy"
+        label: "Generic tidy protein x sample matrix"
+    description: "Which search engine produced the raw file"
+
+  - name: "raw_file"
+    label: "Protein-Level Raw File"
+    type: "file"
+    required: true
+    accept: ".csv,.tsv,.txt"
+    description: "Spectronaut/DIA-NN long report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, or a generic tidy protein x sample matrix, matching the selected format"
+
+  - name: "peptide_file"
+    label: "Peptide-Level Raw File"
+    type: "file"
+    required: false
+    accept: ".csv,.tsv,.txt"
+    description: "Optional companion peptide-level file (report.pr_matrix.tsv for DIA-NN, combined_peptide.tsv for FragPipe, etc.). Enables downstream msqrob2-based differential expression instead of limma."
+
+  - name: "sample_sheet_file"
+    label: "Sample Sheet"
+    type: "file"
+    required: true
+    accept: ".csv,.tsv,.txt"
+    description: "Maps each raw file's sample identifiers to an ip/wcl group and a replicate index"
+    tableColumns:
+      - name: "Sample"
+        label: "Sample"
+        type: "text"
+        required: true
+        description: "Sample identifier matching a column/value in the raw file (e.g. R.FileName, or a FragPipe/DIA-NN column name)"
+      - name: "Group"
+        label: "Group"
+        type: "text"
+        required: true
+        description: "Must be exactly 'ip' or 'wcl'"
+      - name: "ReplicateIndex"
+        label: "Replicate Index"
+        type: "number"
+        required: true
+        description: "Biological replicate number within this sample's group"
+
+outputs:
+  - name: "samples"
+    path: "samples.tsv"
+    type: "data"
+    description: "Resolved sample -> group/replicate mapping"
+    format: "tsv"
+
+  - name: "abundance_long"
+    path: "abundance_long.tsv"
+    type: "data"
+    description: "Protein-level abundance in long format (sample, protein, gene, value) — the shared input every other lysoip-* plugin expects"
+    format: "tsv"
+
+  - name: "peptide_abundance_long"
+    path: "peptide_abundance_long.tsv"
+    type: "data"
+    description: "Peptide-level abundance in long format (sample, peptide, protein, gene, value). Present only when a peptide-level raw file was given."
+    format: "tsv"
+
+execution:
+  argsMapping:
+    format: "--format"
+    raw_file: "--raw_file"
+    peptide_file: "--peptide_file"
+    sample_sheet_file: "--sample_sheet_file"
+
+  outputDir: "--output_folder"
+
+  requirements:
+    python: ">=3.11"
+    packages:
+      - "pandas>=2.0.0"
+
+example:
+  enabled: true
+  values:
+    format: "generic_tidy"
+    raw_file: "examples/generic_tidy_data.csv"
+    peptide_file: "examples/generic_tidy_peptides.csv"
+    sample_sheet_file: "examples/sample_sheet.csv"
