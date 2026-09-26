@@ -30,13 +30,16 @@ Converts a Spectronaut, FragPipe, DIA-NN, or generic tidy search-engine export i
 flowchart TD
     Start([Start]) --> step1
     step1["Reading sample sheet"]
-    step1 --> step2
-    step2["Parsing protein-level abundance"]
-    step2 --> step3
-    step3{"Parsing peptide-level abundance"}
-    step3 --> step4
-    step4["Ingestion complete"]
-    step4 --> End([End])
+    step1 --> parse
+    parse["Parsing protein-level abundance"]
+    parse --> has_peptides
+    has_peptides{"Peptide file provided?"}
+    has_peptides -->|"yes"| parse_peptides
+    has_peptides -->|"no"| step2
+    parse_peptides["Parsing peptide-level abundance"]
+    parse_peptides --> step2
+    step2["Ingestion complete"]
+    step2 --> End([End])
 ```
 
 ## Runtime

@@ -131,13 +131,16 @@
 <pre class="mermaid">flowchart TD
     Start([Start]) --&gt; step1
     step1[&quot;Reading sample sheet&quot;]
-    step1 --&gt; step2
-    step2[&quot;Parsing protein-level abundance&quot;]
-    step2 --&gt; step3
-    step3{&quot;Parsing peptide-level abundance&quot;}
-    step3 --&gt; step4
-    step4[&quot;Ingestion complete&quot;]
-    step4 --&gt; End([End])
+    step1 --&gt; parse
+    parse[&quot;Parsing protein-level abundance&quot;]
+    parse --&gt; has_peptides
+    has_peptides{&quot;Peptide file provided?&quot;}
+    has_peptides --&gt;|&quot;yes&quot;| parse_peptides
+    has_peptides --&gt;|&quot;no&quot;| step2
+    parse_peptides[&quot;Parsing peptide-level abundance&quot;]
+    parse_peptides --&gt; step2
+    step2[&quot;Ingestion complete&quot;]
+    step2 --&gt; End([End])
 </pre>
 <h2 id="runtime">Runtime</h2>
 <ul>

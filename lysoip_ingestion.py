@@ -292,7 +292,7 @@ def main():
     # @step: Reading sample sheet
     sample_sheet = read_sample_sheet(args.sample_sheet_file)
 
-    # @step: Parsing protein-level abundance
+    # @step[id=parse]: Parsing protein-level abundance
     parse_fn, parse_peptides_fn = PARSERS[args.format]
     samples, measurements = parse_fn(args.raw_file, sample_sheet)
 
@@ -300,8 +300,9 @@ def main():
     write_tsv(output_folder / "abundance_long.tsv", measurements, ["sample", "protein", "gene", "value"])
     print(f"Wrote {len(samples)} samples, {len(measurements)} abundance measurements", file=sys.stderr)
 
+    # @step-if[id=has_peptides,from=parse]: Peptide file provided?
     if args.peptide_file:
-        # @step-if: Parsing peptide-level abundance
+        # @step[id=parse_peptides,from=has_peptides:yes]: Parsing peptide-level abundance
         peptide_samples, peptide_measurements = parse_peptides_fn(args.peptide_file, sample_sheet)
         write_tsv(
             output_folder / "peptide_abundance_long.tsv",
@@ -310,7 +311,7 @@ def main():
         )
         print(f"Wrote {len(peptide_measurements)} peptide abundance measurements", file=sys.stderr)
 
-    # @step: Ingestion complete
+    # @step[from=has_peptides:no+parse_peptides]: Ingestion complete
     print("Ingestion complete.", file=sys.stderr)
 
 
