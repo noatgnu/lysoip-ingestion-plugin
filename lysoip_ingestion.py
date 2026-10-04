@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Lyso-IP QC ingestion: converts one search-engine export into the tidy long-format
-files every downstream lysoip-* plugin consumes (samples.tsv, abundance_long.tsv,
-optionally peptide_abundance_long.tsv).
-
-Ported from lysoip_qc_framework/apps/ingestion/adapters/{spectronaut,fragpipe,diann,
-generic_tidy}.py, which are already pure pandas with zero Django dependency.
-"""
+"""Converts one search-engine export into the tidy long-format files the lysoip-* plugins consume."""
 
 import argparse
 import csv
@@ -64,8 +58,7 @@ def read_sample_sheet(path):
 
 
 def build_samples(sample_names, sample_sheet):
-    """Resolve raw sample identifiers against the sample sheet; extra unselected file
-    columns are silently skipped, but every sample_sheet entry must appear in the file."""
+    """Every sample_sheet entry must appear in the file; extra file columns are skipped."""
     seen = list(dict.fromkeys(sample_names))
     selected = [name for name in seen if name in sample_sheet]
     missing = set(sample_sheet) - set(selected)

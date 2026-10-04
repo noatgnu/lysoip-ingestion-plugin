@@ -196,6 +196,14 @@
 <td>-</td>
 <td>Always visible</td>
 </tr>
+<tr>
+<td><code>require_proteotypic</code></td>
+<td>Require Proteotypic Peptides</td>
+<td>boolean</td>
+<td>No</td>
+<td>true</td>
+<td>Always visible</td>
+</tr>
 </tbody>
 </table>
 <h3 id="input-details">Input Details</h3>
@@ -235,6 +243,8 @@
 </ul>
 </li>
 </ul>
+<h4 id="require-proteotypic-peptides-require-proteotypic">Require Proteotypic Peptides (<code>require_proteotypic</code>)</h4>
+<p>Drop peptides DIA-NN flags as shared across more than one protein; only relevant for the diann format</p>
 <h2 id="outputs">Outputs</h2>
 <table>
 <thead>
@@ -284,10 +294,10 @@
 </blockquote>
 <h2 id="example-data">Example Data</h2>
 <p>This plugin includes example data for testing:</p>
-<pre><code class="language-yaml">  format: generic_tidy
-  raw_file: examples/generic_tidy_data.csv
-  peptide_file: examples/generic_tidy_peptides.csv
-  sample_sheet_file: examples/sample_sheet.csv
+<pre><code class="language-yaml">  format: diann
+  raw_file: examples/diann_pg_matrix.tsv
+  peptide_file: examples/diann_pr_matrix.tsv
+  sample_sheet_file: examples/diann_sample_sheet.csv
 </code></pre>
 <p>Load example data by clicking the <strong>Load Example</strong> button in the UI.</p>
 <h2 id="usage">Usage</h2>
