@@ -91,7 +91,7 @@ def parse_spectronaut(raw_path, sample_sheet):
     return samples, measurements
 
 
-def parse_spectronaut_peptides(raw_path, sample_sheet):
+def parse_spectronaut_peptides(raw_path, sample_sheet, require_proteotypic=True):
     c = SpectronautColumns
     table = pd.read_csv(raw_path, sep="\t")
     required = {c["peptide"], c["protein"], c["gene"], c["sample"], c["peptide_quantity"]}
@@ -132,7 +132,7 @@ def parse_fragpipe(raw_path, sample_sheet):
     return samples, measurements
 
 
-def parse_fragpipe_peptides(raw_path, sample_sheet):
+def parse_fragpipe_peptides(raw_path, sample_sheet, require_proteotypic=True):
     c = FragpipeColumns
     table = pd.read_csv(raw_path, sep="\t")
     missing = [col for col in (c["peptide"], c["protein"], c["gene"]) if col not in table.columns]
@@ -187,10 +187,13 @@ def parse_diann(raw_path, sample_sheet):
     return samples, measurements
 
 
-def parse_diann_peptides(raw_path, sample_sheet):
+def parse_diann_peptides(raw_path, sample_sheet, require_proteotypic=True):
     c = DiannColumns
     table = pd.read_csv(raw_path, sep="\t")
-    missing = [col for col in (c["peptide"], c["protein"], c["gene"]) if col not in table.columns]
+    required_columns = [c["peptide"], c["protein"], c["gene"]]
+    if require_proteotypic:
+        required_columns.append("Proteotypic")
+    missing = [col for col in required_columns if col not in table.columns]
     if missing:
         raise ValueError(f"DIA-NN peptide matrix missing required columns: {missing}")
 
@@ -200,6 +203,10 @@ def parse_diann_peptides(raw_path, sample_sheet):
     sample_columns = [col for col in sample_columns if col in sample_sheet]
 
     samples = build_samples(sample_columns, sample_sheet)
+
+    if require_proteotypic:
+        shared_sequences = set(table.loc[table["Proteotypic"] != 1, c["peptide"]])
+        table = table[~table[c["peptide"]].isin(shared_sequences)]
 
     protein_by_peptide = {}
     sums = {}
@@ -240,7 +247,7 @@ def parse_generic_tidy(raw_path, sample_sheet):
     return samples, measurements
 
 
-def parse_generic_tidy_peptides(raw_path, sample_sheet):
+def parse_generic_tidy_peptides(raw_path, sample_sheet, require_proteotypic=True):
     c = GenericTidyColumns
     table = pd.read_csv(raw_path, sep=None, engine="python")
     missing = {c["peptide"], c["protein"], c["gene"]} - set(table.columns)
@@ -283,6 +290,7 @@ def main():
     parser.add_argument("--raw_file", required=True)
     parser.add_argument("--peptide_file", default=None)
     parser.add_argument("--sample_sheet_file", required=True)
+    parser.add_argument("--require_proteotypic", type=lambda x: x.lower() != "false", default=True)
     parser.add_argument("--output_folder", required=True)
     args = parser.parse_args()
 
@@ -303,7 +311,9 @@ def main():
     # @step-if[id=has_peptides,from=parse]: Peptide file provided?
     if args.peptide_file:
         # @step[id=parse_peptides,from=has_peptides:yes]: Parsing peptide-level abundance
-        peptide_samples, peptide_measurements = parse_peptides_fn(args.peptide_file, sample_sheet)
+        peptide_samples, peptide_measurements = parse_peptides_fn(
+            args.peptide_file, sample_sheet, require_proteotypic=args.require_proteotypic
+        )
         write_tsv(
             output_folder / "peptide_abundance_long.tsv",
             peptide_measurements,

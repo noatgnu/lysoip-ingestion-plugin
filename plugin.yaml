@@ -69,6 +69,13 @@ inputs:
         required: true
         description: "Biological replicate number within this sample's group"
 
+  - name: "require_proteotypic"
+    label: "Require Proteotypic Peptides"
+    type: "boolean"
+    required: false
+    default: true
+    description: "Drop peptides DIA-NN flags as shared across more than one protein; only relevant for the diann format"
+
 outputs:
   - name: "samples"
     path: "samples.tsv"
@@ -94,6 +101,7 @@ execution:
     raw_file: "--raw_file"
     peptide_file: "--peptide_file"
     sample_sheet_file: "--sample_sheet_file"
+    require_proteotypic: "--require_proteotypic"
 
   outputDir: "--output_folder"
 
@@ -105,7 +113,7 @@ execution:
 example:
   enabled: true
   values:
-    format: "generic_tidy"
-    raw_file: "examples/generic_tidy_data.csv"
-    peptide_file: "examples/generic_tidy_peptides.csv"
-    sample_sheet_file: "examples/sample_sheet.csv"
+    format: "diann"
+    raw_file: "examples/diann_pg_matrix.tsv"
+    peptide_file: "examples/diann_pr_matrix.tsv"
+    sample_sheet_file: "examples/diann_sample_sheet.csv"

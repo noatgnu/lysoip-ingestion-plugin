@@ -56,6 +56,7 @@ flowchart TD
 | `raw_file` | Protein-Level Raw File | file | Yes | - | Always visible |
 | `peptide_file` | Peptide-Level Raw File | file | No | - | Always visible |
 | `sample_sheet_file` | Sample Sheet | file | Yes | - | Always visible |
+| `require_proteotypic` | Require Proteotypic Peptides | boolean | No | true | Always visible |
 
 ### Input Details
 
@@ -88,6 +89,10 @@ Maps each raw file's sample identifiers to an ip/wcl group and a replicate index
     - `ReplicateIndex`: Replicate Index (required)
       - Biological replicate number within this sample's group
 
+#### Require Proteotypic Peptides (`require_proteotypic`)
+
+Drop peptides DIA-NN flags as shared across more than one protein; only relevant for the diann format
+
 ## Outputs
 
 | Name | File | Type | Format | Description |
@@ -113,10 +118,10 @@ Packages are defined inline in the plugin configuration:
 This plugin includes example data for testing:
 
 ```yaml
-  peptide_file: examples/generic_tidy_peptides.csv
-  sample_sheet_file: examples/sample_sheet.csv
-  format: generic_tidy
-  raw_file: examples/generic_tidy_data.csv
+  format: diann
+  raw_file: examples/diann_pg_matrix.tsv
+  peptide_file: examples/diann_pr_matrix.tsv
+  sample_sheet_file: examples/diann_sample_sheet.csv
 ```
 
 Load example data by clicking the **Load Example** button in the UI.
