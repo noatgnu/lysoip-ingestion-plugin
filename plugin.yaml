@@ -101,7 +101,9 @@ execution:
     raw_file: "--raw_file"
     peptide_file: "--peptide_file"
     sample_sheet_file: "--sample_sheet_file"
-    require_proteotypic: "--require_proteotypic"
+    require_proteotypic:
+      flag: "--require_proteotypic"
+      passAsValue: true
 
   outputDir: "--output_folder"
 

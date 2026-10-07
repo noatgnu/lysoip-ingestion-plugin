@@ -119,10 +119,10 @@ Packages are defined inline in the plugin configuration:
 This plugin includes example data for testing:
 
 ```yaml
+  sample_sheet_file: examples/diann_sample_sheet.csv
   format: diann
   raw_file: examples/diann_pg_matrix.tsv
   peptide_file: examples/diann_pr_matrix.tsv
-  sample_sheet_file: examples/diann_sample_sheet.csv
 ```
 
 Load example data by clicking the **Load Example** button in the UI.
