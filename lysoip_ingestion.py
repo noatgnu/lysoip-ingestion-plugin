@@ -40,6 +40,14 @@ DIANN_PR_FIXED_COLUMNS = DIANN_PG_FIXED_COLUMNS | {
 GenericTidyColumns = {"protein": "protein", "gene": "gene", "peptide": "peptide"}
 
 
+def is_contaminant_accession(accession, prefix):
+    return accession.startswith(prefix)
+
+
+def drop_contaminants(measurements, prefix):
+    return [m for m in measurements if not is_contaminant_accession(m["protein"], prefix)]
+
+
 def read_sample_sheet(path):
     """CSV/TSV with columns Sample, Group, ReplicateIndex -> {sample_name: (group, replicate_index)}."""
     table = pd.read_csv(path, sep=None, engine="python")
@@ -284,6 +292,8 @@ def main():
     parser.add_argument("--peptide_file", default=None)
     parser.add_argument("--sample_sheet_file", required=True)
     parser.add_argument("--require_proteotypic", type=lambda x: x.lower() != "false", default=True)
+    parser.add_argument("--exclude_contaminants", type=lambda x: x.lower() != "false", default=True)
+    parser.add_argument("--contaminant_prefix", default="cRAP-")
     parser.add_argument("--output_folder", required=True)
     args = parser.parse_args()
 
@@ -296,6 +306,8 @@ def main():
     # @step[id=parse]: Parsing protein-level abundance
     parse_fn, parse_peptides_fn = PARSERS[args.format]
     samples, measurements = parse_fn(args.raw_file, sample_sheet)
+    if args.exclude_contaminants:
+        measurements = drop_contaminants(measurements, args.contaminant_prefix)
 
     write_tsv(output_folder / "samples.tsv", samples, ["sample", "group", "replicate_index"])
     write_tsv(output_folder / "abundance_long.tsv", measurements, ["sample", "protein", "gene", "value"])
@@ -307,6 +319,8 @@ def main():
         peptide_samples, peptide_measurements = parse_peptides_fn(
             args.peptide_file, sample_sheet, require_proteotypic=args.require_proteotypic
         )
+        if args.exclude_contaminants:
+            peptide_measurements = drop_contaminants(peptide_measurements, args.contaminant_prefix)
         write_tsv(
             output_folder / "peptide_abundance_long.tsv",
             peptide_measurements,

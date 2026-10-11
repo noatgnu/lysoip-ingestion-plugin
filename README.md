@@ -57,6 +57,8 @@ flowchart TD
 | `peptide_file` | Peptide-Level Raw File | file | No | - | Always visible |
 | `sample_sheet_file` | Sample Sheet | file | Yes | - | Always visible |
 | `require_proteotypic` | Require Proteotypic Peptides | boolean | No | true | Always visible |
+| `exclude_contaminants` | Exclude Contaminants | boolean | No | true | Always visible |
+| `contaminant_prefix` | Contaminant Accession Prefix | text | No | cRAP- | Always visible |
 
 ### Input Details
 
@@ -94,6 +96,16 @@ Maps each raw file's sample identifiers to an ip/wcl group and a replicate index
 Drop peptides DIA-NN flags as shared across more than one protein; only relevant for the diann format
 
 
+#### Exclude Contaminants (`exclude_contaminants`)
+
+Drop reagent/database contaminant accessions (e.g. cRAP-prefixed) before writing any output
+
+
+#### Contaminant Accession Prefix (`contaminant_prefix`)
+
+Accession prefix identifying a contaminant; only relevant when Exclude Contaminants is enabled
+
+
 ## Outputs
 
 | Name | File | Type | Format | Description |
@@ -119,10 +131,10 @@ Packages are defined inline in the plugin configuration:
 This plugin includes example data for testing:
 
 ```yaml
+  peptide_file: examples/diann_pr_matrix.tsv
   sample_sheet_file: examples/diann_sample_sheet.csv
   format: diann
   raw_file: examples/diann_pg_matrix.tsv
-  peptide_file: examples/diann_pr_matrix.tsv
 ```
 
 Load example data by clicking the **Load Example** button in the UI.

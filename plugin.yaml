@@ -76,6 +76,20 @@ inputs:
     default: true
     description: "Drop peptides DIA-NN flags as shared across more than one protein; only relevant for the diann format"
 
+  - name: "exclude_contaminants"
+    label: "Exclude Contaminants"
+    type: "boolean"
+    required: false
+    default: true
+    description: "Drop reagent/database contaminant accessions (e.g. cRAP-prefixed) before writing any output"
+
+  - name: "contaminant_prefix"
+    label: "Contaminant Accession Prefix"
+    type: "text"
+    required: false
+    default: "cRAP-"
+    description: "Accession prefix identifying a contaminant; only relevant when Exclude Contaminants is enabled"
+
 outputs:
   - name: "samples"
     path: "samples.tsv"
@@ -104,6 +118,10 @@ execution:
     require_proteotypic:
       flag: "--require_proteotypic"
       passAsValue: true
+    exclude_contaminants:
+      flag: "--exclude_contaminants"
+      passAsValue: true
+    contaminant_prefix: "--contaminant_prefix"
 
   outputDir: "--output_folder"
 
