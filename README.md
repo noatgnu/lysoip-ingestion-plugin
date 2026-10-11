@@ -30,7 +30,10 @@ Converts a Spectronaut, FragPipe, DIA-NN, or generic tidy search-engine export i
 flowchart TD
     Start([Start]) --> step1
     step1["Reading sample sheet"]
-    step1 --> parse
+    step1 --> has_protein
+    has_protein{"Protein file provided?"}
+    has_protein -->|"yes"| parse
+    has_protein -->|"no"| has_peptides
     parse["Parsing protein-level abundance"]
     parse --> has_peptides
     has_peptides{"Peptide file provided?"}
@@ -53,7 +56,7 @@ flowchart TD
 | Name | Label | Type | Required | Default | Visibility |
 |------|-------|------|----------|---------|------------|
 | `format` | Search Engine Format | select (Spectronaut / DIA-NN long-format report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, Generic tidy protein x sample matrix) | Yes | generic_tidy | Always visible |
-| `raw_file` | Protein-Level Raw File | file | Yes | - | Always visible |
+| `raw_file` | Protein-Level Raw File | file | No | - | Always visible |
 | `peptide_file` | Peptide-Level Raw File | file | No | - | Always visible |
 | `sample_sheet_file` | Sample Sheet | file | Yes | - | Always visible |
 | `require_proteotypic` | Require Proteotypic Peptides | boolean | No | true | Always visible |
@@ -70,12 +73,12 @@ Which search engine produced the raw file
 
 #### Protein-Level Raw File (`raw_file`)
 
-Spectronaut/DIA-NN long report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, or a generic tidy protein x sample matrix, matching the selected format
+Spectronaut/DIA-NN long report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, or a generic tidy protein x sample matrix, matching the selected format. At least one of this or Peptide-Level Raw File is required.
 
 
 #### Peptide-Level Raw File (`peptide_file`)
 
-Optional companion peptide-level file (report.pr_matrix.tsv for DIA-NN, combined_peptide.tsv for FragPipe, etc.). Enables downstream msqrob2-based differential expression instead of limma.
+Companion peptide-level file (report.pr_matrix.tsv for DIA-NN, combined_peptide.tsv for FragPipe, etc.), enabling downstream msqrob2-based differential expression instead of limma. Can be given alone, with no protein-level file, for peptide-only ingestion. At least one of this or Protein-Level Raw File is required.
 
 
 #### Sample Sheet (`sample_sheet_file`)
@@ -111,7 +114,7 @@ Accession prefix identifying a contaminant; only relevant when Exclude Contamina
 | Name | File | Type | Format | Description |
 |------|------|------|--------|-------------|
 | `samples` | `samples.tsv` | data | tsv | Resolved sample -> group/replicate mapping |
-| `abundance_long` | `abundance_long.tsv` | data | tsv | Protein-level abundance in long format (sample, protein, gene, value) — the shared input every other lysoip-* plugin expects |
+| `abundance_long` | `abundance_long.tsv` | data | tsv | Protein-level abundance in long format (sample, protein, gene, value), the shared input every other lysoip-* plugin expects. Present only when a protein-level raw file was given. |
 | `peptide_abundance_long` | `peptide_abundance_long.tsv` | data | tsv | Peptide-level abundance in long format (sample, peptide, protein, gene, value). Present only when a peptide-level raw file was given. |
 
 ## Requirements
@@ -131,10 +134,10 @@ Packages are defined inline in the plugin configuration:
 This plugin includes example data for testing:
 
 ```yaml
-  peptide_file: examples/diann_pr_matrix.tsv
-  sample_sheet_file: examples/diann_sample_sheet.csv
   format: diann
   raw_file: examples/diann_pg_matrix.tsv
+  peptide_file: examples/diann_pr_matrix.tsv
+  sample_sheet_file: examples/diann_sample_sheet.csv
 ```
 
 Load example data by clicking the **Load Example** button in the UI.

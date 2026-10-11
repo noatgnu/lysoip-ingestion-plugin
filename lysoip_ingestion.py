@@ -288,7 +288,7 @@ def write_tsv(path, rows, fieldnames):
 def main():
     parser = argparse.ArgumentParser(description="Convert a search-engine export into tidy lysoip-* input files")
     parser.add_argument("--format", required=True, choices=sorted(PARSERS))
-    parser.add_argument("--raw_file", required=True)
+    parser.add_argument("--raw_file", default=None)
     parser.add_argument("--peptide_file", default=None)
     parser.add_argument("--sample_sheet_file", required=True)
     parser.add_argument("--require_proteotypic", type=lambda x: x.lower() != "false", default=True)
@@ -297,28 +297,34 @@ def main():
     parser.add_argument("--output_folder", required=True)
     args = parser.parse_args()
 
+    if not args.raw_file and not args.peptide_file:
+        parser.error("At least one of --raw_file or --peptide_file is required.")
+
     output_folder = Path(args.output_folder)
     output_folder.mkdir(parents=True, exist_ok=True)
 
     # @step: Reading sample sheet
     sample_sheet = read_sample_sheet(args.sample_sheet_file)
 
-    # @step[id=parse]: Parsing protein-level abundance
     parse_fn, parse_peptides_fn = PARSERS[args.format]
-    samples, measurements = parse_fn(args.raw_file, sample_sheet)
-    if args.exclude_contaminants:
-        measurements = drop_contaminants(measurements, args.contaminant_prefix)
 
-    write_tsv(output_folder / "samples.tsv", samples, ["sample", "group", "replicate_index"])
-    write_tsv(output_folder / "abundance_long.tsv", measurements, ["sample", "protein", "gene", "value"])
-    print(f"Wrote {len(samples)} samples, {len(measurements)} abundance measurements", file=sys.stderr)
+    # @step-if[id=has_protein]: Protein file provided?
+    if args.raw_file:
+        # @step[id=parse,from=has_protein:yes]: Parsing protein-level abundance
+        samples, measurements = parse_fn(args.raw_file, sample_sheet)
+        if args.exclude_contaminants:
+            measurements = drop_contaminants(measurements, args.contaminant_prefix)
+        write_tsv(output_folder / "abundance_long.tsv", measurements, ["sample", "protein", "gene", "value"])
+        print(f"Wrote {len(samples)} samples, {len(measurements)} abundance measurements", file=sys.stderr)
 
-    # @step-if[id=has_peptides,from=parse]: Peptide file provided?
+    # @step-if[id=has_peptides,from=has_protein:no+parse]: Peptide file provided?
     if args.peptide_file:
         # @step[id=parse_peptides,from=has_peptides:yes]: Parsing peptide-level abundance
         peptide_samples, peptide_measurements = parse_peptides_fn(
             args.peptide_file, sample_sheet, require_proteotypic=args.require_proteotypic
         )
+        if not args.raw_file:
+            samples = peptide_samples
         if args.exclude_contaminants:
             peptide_measurements = drop_contaminants(peptide_measurements, args.contaminant_prefix)
         write_tsv(
@@ -327,6 +333,8 @@ def main():
             ["sample", "peptide", "protein", "gene", "value"],
         )
         print(f"Wrote {len(peptide_measurements)} peptide abundance measurements", file=sys.stderr)
+
+    write_tsv(output_folder / "samples.tsv", samples, ["sample", "group", "replicate_index"])
 
     # @step[from=has_peptides:no+parse_peptides]: Ingestion complete
     print("Ingestion complete.", file=sys.stderr)

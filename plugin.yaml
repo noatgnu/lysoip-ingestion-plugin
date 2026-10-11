@@ -35,16 +35,16 @@ inputs:
   - name: "raw_file"
     label: "Protein-Level Raw File"
     type: "file"
-    required: true
+    required: false
     accept: ".csv,.tsv,.txt"
-    description: "Spectronaut/DIA-NN long report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, or a generic tidy protein x sample matrix, matching the selected format"
+    description: "Spectronaut/DIA-NN long report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, or a generic tidy protein x sample matrix, matching the selected format. At least one of this or Peptide-Level Raw File is required."
 
   - name: "peptide_file"
     label: "Peptide-Level Raw File"
     type: "file"
     required: false
     accept: ".csv,.tsv,.txt"
-    description: "Optional companion peptide-level file (report.pr_matrix.tsv for DIA-NN, combined_peptide.tsv for FragPipe, etc.). Enables downstream msqrob2-based differential expression instead of limma."
+    description: "Companion peptide-level file (report.pr_matrix.tsv for DIA-NN, combined_peptide.tsv for FragPipe, etc.), enabling downstream msqrob2-based differential expression instead of limma. Can be given alone, with no protein-level file, for peptide-only ingestion. At least one of this or Protein-Level Raw File is required."
 
   - name: "sample_sheet_file"
     label: "Sample Sheet"
@@ -100,7 +100,7 @@ outputs:
   - name: "abundance_long"
     path: "abundance_long.tsv"
     type: "data"
-    description: "Protein-level abundance in long format (sample, protein, gene, value) — the shared input every other lysoip-* plugin expects"
+    description: "Protein-level abundance in long format (sample, protein, gene, value), the shared input every other lysoip-* plugin expects. Present only when a protein-level raw file was given."
     format: "tsv"
 
   - name: "peptide_abundance_long"

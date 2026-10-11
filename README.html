@@ -131,7 +131,10 @@
 <pre class="mermaid">flowchart TD
     Start([Start]) --&gt; step1
     step1[&quot;Reading sample sheet&quot;]
-    step1 --&gt; parse
+    step1 --&gt; has_protein
+    has_protein{&quot;Protein file provided?&quot;}
+    has_protein --&gt;|&quot;yes&quot;| parse
+    has_protein --&gt;|&quot;no&quot;| has_peptides
     parse[&quot;Parsing protein-level abundance&quot;]
     parse --&gt; has_peptides
     has_peptides{&quot;Peptide file provided?&quot;}
@@ -176,7 +179,7 @@
 <td><code>raw_file</code></td>
 <td>Protein-Level Raw File</td>
 <td>file</td>
-<td>Yes</td>
+<td>No</td>
 <td>-</td>
 <td>Always visible</td>
 </tr>
@@ -229,9 +232,9 @@
 <li><strong>Options</strong>: <code>spectronaut</code> (Spectronaut / DIA-NN long-format report), <code>fragpipe</code> (FragPipe combined_protein.tsv), <code>diann</code> (DIA-NN report.pg_matrix.tsv), <code>generic_tidy</code> (Generic tidy protein x sample matrix)</li>
 </ul>
 <h4 id="protein-level-raw-file-raw-file">Protein-Level Raw File (<code>raw_file</code>)</h4>
-<p>Spectronaut/DIA-NN long report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, or a generic tidy protein x sample matrix, matching the selected format</p>
+<p>Spectronaut/DIA-NN long report, FragPipe combined_protein.tsv, DIA-NN report.pg_matrix.tsv, or a generic tidy protein x sample matrix, matching the selected format. At least one of this or Peptide-Level Raw File is required.</p>
 <h4 id="peptide-level-raw-file-peptide-file">Peptide-Level Raw File (<code>peptide_file</code>)</h4>
-<p>Optional companion peptide-level file (report.pr_matrix.tsv for DIA-NN, combined_peptide.tsv for FragPipe, etc.). Enables downstream msqrob2-based differential expression instead of limma.</p>
+<p>Companion peptide-level file (report.pr_matrix.tsv for DIA-NN, combined_peptide.tsv for FragPipe, etc.), enabling downstream msqrob2-based differential expression instead of limma. Can be given alone, with no protein-level file, for peptide-only ingestion. At least one of this or Protein-Level Raw File is required.</p>
 <h4 id="sample-sheet-sample-sheet-file">Sample Sheet (<code>sample_sheet_file</code>)</h4>
 <p>Maps each raw file's sample identifiers to an ip/wcl group and a replicate index</p>
 <ul>
@@ -289,7 +292,7 @@
 <td><code>abundance_long.tsv</code></td>
 <td>data</td>
 <td>tsv</td>
-<td>Protein-level abundance in long format (sample, protein, gene, value) — the shared input every other lysoip-* plugin expects</td>
+<td>Protein-level abundance in long format (sample, protein, gene, value), the shared input every other lysoip-* plugin expects. Present only when a protein-level raw file was given.</td>
 </tr>
 <tr>
 <td><code>peptide_abundance_long</code></td>
